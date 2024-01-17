@@ -37,6 +37,11 @@ pub enum Statement {
     ExpressionStmt(Expression),
     CompoundStmt(CompoundStatement),
     ReturnStmt(Expression),
+    IfThenStmt {
+        condition: Box<Expression>,
+        body: Box<Statement>,
+        else_body: Option<Box<Statement>>,
+    }
     // TODO: add more statement types like if, while, for, etc.
 }
 
@@ -46,8 +51,12 @@ pub enum Expression {
     Constant(i32),
     StringLiteral(String),
     FunctionCall { name: String, arguments: Vec<Expression> },
-    BinaryOp { left: Box<Expression>, operator: Operator, right: Box<Expression> },
-    UnaryOp { operator: Operator, operand: Box<Expression> },
+    BinaryOp { left: Box<Expression>, operator: BinaryOperator, right: Box<Expression> },
+    UnaryOp { operator: UnaryOperator, operand: Box<Expression> },
+    EqualityOp {
+        left: Box<Expression>,
+        right: Box<Expression>,
+    },
     // TODO: add more expression types like ternary conditional, sizeof, cast, etc.
 }
 
@@ -69,15 +78,25 @@ pub enum TypeSpecifier {
     Void,
     Char,
     Int,
+    Float
     // TODO: add more types like float, double, custom structs, pub enums, etc.
 }
 
 #[derive(Debug)]
-pub enum Operator {
+pub enum BinaryOperator {
     Add,
     Subtract,
     Multiply,
     Divide,
+    Modulo,
+    Equals,
+    LogicalAnd,
+    LogicalOr
     // TODO: add more operators like modulo, logical and/or, bitwise operators, etc.
 }
 
+#[derive(Debug)]
+pub enum UnaryOperator {
+    Negate,
+    LogicalNot,
+}
