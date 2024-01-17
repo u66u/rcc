@@ -46,9 +46,9 @@ fn parse_parameter(input: &str) -> VerboseIResult<&str, FunctionParameter> {
 fn parse_binary_op(input: &str) -> VerboseIResult<&str, Expression> {
     let (input, (left, _, op, _, right)) = tuple((
         parse_identifier,
-        multispace1,
+        multispace0,
         one_of("+-*/"),
-        multispace1,
+        multispace0,
         parse_identifier,
     ))(input)?;
 
@@ -73,7 +73,7 @@ fn parse_binary_op(input: &str) -> VerboseIResult<&str, Expression> {
 // Parse a return statement (e.g., "return a + b;")
 fn parse_return_statement(input: &str) -> VerboseIResult<&str, Statement> {
     let (input, _) = tag("return")(input)?;
-    let (input, _) = multispace1(input)?;
+    let (input, _) = multispace0(input)?;
     let (input, expression) = parse_binary_op(input)?;
     let (input, _) = char(';')(input)?;
     Ok((input, Statement::ReturnStmt(expression)))
@@ -83,7 +83,11 @@ fn parse_return_statement(input: &str) -> VerboseIResult<&str, Statement> {
 fn parse_compound_statement(input: &str) -> VerboseIResult<&str, CompoundStatement> {
     let (input, statements) = delimited(
         char('{'),
-        separated_list0(multispace1, parse_return_statement),
+        delimited(
+            multispace0,
+            separated_list0(multispace1, parse_return_statement),
+            multispace0
+        ),
         char('}'),
     )(input)?;
 
@@ -91,8 +95,6 @@ fn parse_compound_statement(input: &str) -> VerboseIResult<&str, CompoundStateme
 }
 
 // Parse a function definition (e.g., "int add(int a, int b) { return a + b; }")
-// Correct the parse_function_definition function
-
 fn parse_function_definition(input: &str) -> VerboseIResult<&str, FunctionDefinition> {
     context(
         "function definition",
@@ -126,10 +128,17 @@ fn parse_function_definition(input: &str) -> VerboseIResult<&str, FunctionDefini
 }
 
 
-// Include the rest of the parser functions here...
-
 fn main() {
     let c_function = "int add(int a, int b) {return a + b;}";
+    let res = parse_identifier(c_function);
+    let res2 = parse_type_specifier(c_function);
+    let res3 = parse_parameter(c_function);
+    let res4 = parse_binary_op("a+b");
+    let res5 = parse_return_statement("return a + b;");
+    let res6 = parse_compound_statement("{   return a + b; }");
+
+    println!("{:?} \n {:?} \n {:?} \n {:?} \n {:?} \n {:?} \n" , res, res2, res3, res4, res5, res6);
+
     match parse_function_definition(c_function) {
         Ok((_, function_ast)) => {
             println!("Parsed successfully! AST: {:?}", function_ast);
