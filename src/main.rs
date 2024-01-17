@@ -73,7 +73,7 @@ fn parse_binary_op(input: &str) -> VerboseIResult<&str, Expression> {
 // Parse a return statement (e.g., "return a + b;")
 fn parse_return_statement(input: &str) -> VerboseIResult<&str, Statement> {
     let (input, _) = tag("return")(input)?;
-    let (input, _) = multispace0(input)?;
+    let (input, _) = multispace1(input)?;
     let (input, expression) = parse_binary_op(input)?;
     let (input, _) = char(';')(input)?;
     Ok((input, Statement::ReturnStmt(expression)))
@@ -83,15 +83,16 @@ fn parse_return_statement(input: &str) -> VerboseIResult<&str, Statement> {
 fn parse_compound_statement(input: &str) -> VerboseIResult<&str, CompoundStatement> {
     let (input, statements) = delimited(
         char('{'),
-        separated_list0(multispace0, parse_return_statement),
-        preceded(multispace0, char('}')),
+        separated_list0(multispace1, parse_return_statement),
+        char('}'),
     )(input)?;
 
     Ok((input, CompoundStatement { statements }))
 }
 
-
 // Parse a function definition (e.g., "int add(int a, int b) { return a + b; }")
+// Correct the parse_function_definition function
+
 fn parse_function_definition(input: &str) -> VerboseIResult<&str, FunctionDefinition> {
     context(
         "function definition",
@@ -125,8 +126,10 @@ fn parse_function_definition(input: &str) -> VerboseIResult<&str, FunctionDefini
 }
 
 
+// Include the rest of the parser functions here...
+
 fn main() {
-    let c_function = "int add(int a, int b) { return a + b; }";
+    let c_function = "int add(int a, int b) {return a + b;}";
     match parse_function_definition(c_function) {
         Ok((_, function_ast)) => {
             println!("Parsed successfully! AST: {:?}", function_ast);
@@ -136,3 +139,4 @@ fn main() {
         }
     }
 }
+

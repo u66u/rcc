@@ -1,11 +1,14 @@
 Example usage of the parser:
 
+Input:
+```
 int add(int a, int b) {
     return a + b;
 }
-
+```
 Returned AST:
 
+```
 FunctionDefinition {
     return_type: TypeSpecifier::Int,
     name: "add".to_string(),
@@ -26,7 +29,7 @@ FunctionDefinition {
         ]
     }
 }
-
+```
 TODO:
 - Separate lexer?
 - clang-like AST?
